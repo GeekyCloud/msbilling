@@ -5,16 +5,15 @@
  @constructor
  @return {Object} instantiated AppRouter
  **/
-define(['underscore', 'jquery', 'backbone', 'text', 'AppAuth', 'AppEntryFaderView', 'LoginView', 'AppContentFaderView', 'AppSelectorView', 'WaitView', 'bootbox', 'XDate'],
-    function (_, $, Backbone, text, AppAuth, AppEntryFaderView, LoginView, AppContentFaderView, AppSelectorView, WaitView, Bootbox, XDate) {
+define(['underscore', 'jquery', 'backbone', 'text', 'bootbox', 'XDate', 'AppContentFaderView', 'AppEntryFaderView'],
+    function (_, $, Backbone, text, Bootbox, XDate, AppContentFaderView, AppEntryFaderView) {
 
         BB.SERVICES.LAYOUT_ROUTER = 'LayoutRouter';
         BB.SERVICES.APP_CONTENT_MAILWASP_FADER_VIEW = 'AppContentMailWaspFaderView';
         BB.SERVICES.APP_CONTENT_EVERNODES_FADER_VIEW = 'AppContentEverNodesFaderView';
 
-
         /**
-         Event fired when app resized
+         Event fired when app re-sized
          @event APP_SIZED
          @static
          @final
@@ -32,12 +31,13 @@ define(['underscore', 'jquery', 'backbone', 'text', 'AppAuth', 'AppEntryFaderVie
                 BB.comBroker.setService(BB.SERVICES['LAYOUT_ROUTER'], self);
                 BB.comBroker.setService('XDATE', new XDate());
 
+                self._initLoginPage();
                 self._listenSizeChanges();
+
                 $(window).trigger('resize');
                 $('[data-toggle="tooltip"]').tooltip({'placement': 'bottom', 'delay': 1000});
 
                 return;
-                self._initLoginPage();
             },
 
             /**
@@ -55,8 +55,12 @@ define(['underscore', 'jquery', 'backbone', 'text', 'AppAuth', 'AppEntryFaderVie
              @param {String} i_pass
              **/
             _routeCreditCard: function (i_user, i_pass) {
-                log('aa')
-                //this.m_appAuth.authenticate(i_user, i_pass);
+                var self = this;
+                require(['text!_templates/_templateMailWasp.html'], function (template) {
+                    $(Elements.APP_MAILWASP_CONTENT).append(template);
+                    self.m_appEntryFaderView.selectView(self.m_appContentMailWaspFaderView);
+                    self._updateLayout();
+                });
             },
 
             /**
@@ -68,52 +72,17 @@ define(['underscore', 'jquery', 'backbone', 'text', 'AppAuth', 'AppEntryFaderVie
              @method _initLoginPage
              **/
             _initLoginPage: function () {
+                var self = this;
 
-                this.m_appAuth = new AppAuth();
-
-                this.m_appEntryFaderView = new AppEntryFaderView({
+                self.m_appEntryFaderView = new AppEntryFaderView({
                     el: Elements.APP_ENTRY,
                     duration: 500
                 });
 
-                this.m_appSelectorView = new AppSelectorView({
-                    el: Elements.APP_SELECTOR,
-                    duration: 650
-                });
-
-                this.m_appContentMailWaspFaderView = new AppContentFaderView({
+                self.m_appContentMailWaspFaderView = new AppContentFaderView({
                     el: Elements.APP_MAILWASP_CONTENT,
                     duration: 650
                 });
-
-                this.m_appContentEverNodesFaderView = new AppContentFaderView({
-                    el: Elements.APP_EVERNODES_CONTENT,
-                    duration: 650
-                });
-
-                this.m_loginView = new LoginView({
-                    el: Elements.APP_LOGIN
-                });
-
-                this.m_mainAppWaitView = new WaitView({
-                    el: Elements.WAITS_SCREEN_ENTRY_APP
-                });
-
-                this.m_logoutView = new BB.View({
-                    el: Elements.APP_LOGOUT
-                });
-
-                this.m_appEntryFaderView.addView(this.m_appSelectorView);
-                this.m_appEntryFaderView.addView(this.m_loginView);
-                this.m_appEntryFaderView.addView(this.m_logoutView);
-                this.m_appEntryFaderView.addView(this.m_appContentMailWaspFaderView);
-                this.m_appEntryFaderView.addView(this.m_appContentEverNodesFaderView);
-                this.m_appEntryFaderView.addView(this.m_mainAppWaitView);
-
-                BB.comBroker.setService(BB.SERVICES['APP_AUTH'], this.m_appAuth);
-                BB.comBroker.setService(BB.SERVICES['APP_ENTRY_FADER_VIEW'], this.m_appEntryFaderView);
-                BB.comBroker.setService(BB.SERVICES.APP_CONTENT_MAILWASP_FADER_VIEW, this.m_appContentMailWaspFaderView);
-                BB.comBroker.setService(BB.SERVICES.APP_CONTENT_EVERNODES_FADER_VIEW, this.m_appContentEverNodesFaderView);
             },
 
             /**
