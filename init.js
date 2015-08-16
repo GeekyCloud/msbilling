@@ -38,6 +38,7 @@ require.config({
         'AppEntryFaderView': '_views/AppEntryFaderView',
         'PopModalView': '_views/PopModalView',
         'LoginView': '_views/LoginView',
+        'CreditCardView': '_views/CreditCardView',
         'WaitView': '_views/WaitView',
         'LanguageSelectorView': '_views/LanguageSelectorView'
     },

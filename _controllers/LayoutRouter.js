@@ -5,8 +5,8 @@
  @constructor
  @return {Object} instantiated AppRouter
  **/
-define(['underscore', 'jquery', 'backbone', 'text', 'bootbox', 'XDate', 'AppContentFaderView', 'AppEntryFaderView'],
-    function (_, $, Backbone, text, Bootbox, XDate, AppContentFaderView, AppEntryFaderView) {
+define(['underscore', 'jquery', 'backbone', 'text', 'bootbox', 'XDate', 'AppEntryFaderView', 'LoginView'],
+    function (_, $, Backbone, text, Bootbox, XDate, AppEntryFaderView, LoginView) {
 
         BB.SERVICES.LAYOUT_ROUTER = 'LayoutRouter';
         BB.SERVICES.APP_CONTENT_MAILWASP_FADER_VIEW = 'AppContentMailWaspFaderView';
@@ -31,13 +31,11 @@ define(['underscore', 'jquery', 'backbone', 'text', 'bootbox', 'XDate', 'AppCont
                 BB.comBroker.setService(BB.SERVICES['LAYOUT_ROUTER'], self);
                 BB.comBroker.setService('XDATE', new XDate());
 
-                self._initLoginPage();
+                self._initAppFaderComp();
                 self._listenSizeChanges();
 
                 $(window).trigger('resize');
                 $('[data-toggle="tooltip"]').tooltip({'placement': 'bottom', 'delay': 1000});
-
-                return;
             },
 
             /**
@@ -45,43 +43,50 @@ define(['underscore', 'jquery', 'backbone', 'text', 'bootbox', 'XDate', 'AppCont
              @method routes
              **/
             routes: {
-                "credit_card": "_routeCreditCard"
+                "credit_card": "_routeLoadFirstView"
             },
 
             /**
              Initiate user credential route authentication
-             @method authenticate
+             @method _routeLoadFirstView
              @param {String} i_user
              @param {String} i_pass
              **/
-            _routeCreditCard: function (i_user, i_pass) {
+            _routeLoadFirstView: function () {
                 var self = this;
-                require(['text!_templates/_templateMailWasp.html'], function (template) {
-                    $(Elements.APP_MAILWASP_CONTENT).append(template);
-                    self.m_appEntryFaderView.selectView(self.m_appContentMailWaspFaderView);
+                require(['text!_templates/tmpCreditCard.html','text!_templates/tmpLogin.html'], function (tmpCreditCard, tmpLogin) {
+                    $(Elements.APP_EVERNODES_CONTENT).append(tmpLogin);
+                    $(Elements.APP_CREDITCARD_CONTAINER).append(tmpCreditCard);
+
+                    self.m_appLogin = new LoginView({
+                        el: Elements.APP_EVERNODES_CONTENT,
+                        duration: 500
+                    });
+
+                    self.m_appCreditCard = new AppEntryFaderView({
+                        el: Elements.APP_CREDITCARD_CONTAINER,
+                        duration: 500
+                    });
+
+                    if (window.location.search.match('pi')){
+                        self.m_appEntryFaderView.selectView(self.m_appCreditCard);
+                    } else {
+                        self.m_appEntryFaderView.selectView(self.m_appLogin);
+                    }
+
                     self._updateLayout();
                 });
             },
 
             /**
-             Create two StackView views: AppEntryFaderView and AppContentFaderView
-             AppEntryFaderView allows for page selection between login page and main app content page
-             AppContentFaderView serves as dual purpose view. On one hand it serves as simple show/hide div for  main login page / content page,
-             on the other hand it itself is a StackView.Fader that allows for show/hide between main content sections including campaigns,
-             stations, resources, settings etc
-             @method _initLoginPage
+             Create StackView views for main components
+             @method _initAppFaderComp
              **/
-            _initLoginPage: function () {
+            _initAppFaderComp: function () {
                 var self = this;
-
                 self.m_appEntryFaderView = new AppEntryFaderView({
                     el: Elements.APP_ENTRY,
                     duration: 500
-                });
-
-                self.m_appContentMailWaspFaderView = new AppContentFaderView({
-                    el: Elements.APP_MAILWASP_CONTENT,
-                    duration: 650
                 });
             },
 
