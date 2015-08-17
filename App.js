@@ -16,6 +16,8 @@ define(['underscore', 'jquery', 'backbone', 'bootstrap', 'backbone.controller', 
             BB.EVENTS = {};
             BB.LOADING = {};
             BB.CONSTS = {};
+            BB.CONSTS.PAYER_ID = -1;
+            BB.CONSTS.SERVER_PORT = 442;
             BB.globs['UNIQUE_COUNTER'] = 0;
             BB.globs['RC4KEY'] = '226a3a42f34ddd778ed2c3ba56644315';
             BB.lib = new Lib();
@@ -24,6 +26,7 @@ define(['underscore', 'jquery', 'backbone', 'bootstrap', 'backbone.controller', 
             BB.comBroker = new ComBroker();
             BB.comBroker.name = 'AppBroker';
             window.log = BB.lib.log;
+            $.support.cors = true;
             $.ajaxSetup({cache: false});
             $.ajaxSetup({
                 headers: {'Authorization': 'somePasswordHere'}

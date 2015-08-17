@@ -5,8 +5,8 @@
  @constructor
  @return {Object} instantiated AppRouter
  **/
-define(['underscore', 'jquery', 'backbone', 'text', 'bootbox', 'XDate', 'AppEntryFaderView', 'LoginView'],
-    function (_, $, Backbone, text, Bootbox, XDate, AppEntryFaderView, LoginView) {
+define(['underscore', 'jquery', 'backbone', 'text', 'bootbox', 'XDate', 'AppEntryFaderView', 'LoginView', 'CreditCardView'],
+    function (_, $, Backbone, text, Bootbox, XDate, AppEntryFaderView, LoginView, CreditCardView) {
 
         BB.SERVICES.LAYOUT_ROUTER = 'LayoutRouter';
         BB.SERVICES.APP_CONTENT_MAILWASP_FADER_VIEW = 'AppContentMailWaspFaderView';
@@ -55,26 +55,56 @@ define(['underscore', 'jquery', 'backbone', 'text', 'bootbox', 'XDate', 'AppEntr
             _routeLoadFirstView: function () {
                 var self = this;
                 require(['text!_templates/tmpCreditCard.html','text!_templates/tmpLogin.html'], function (tmpCreditCard, tmpLogin) {
-                    $(Elements.APP_EVERNODES_CONTENT).append(tmpLogin);
+                    $(Elements.APP_LOGIN_CONTENT).append(tmpLogin);
                     $(Elements.APP_CREDITCARD_CONTAINER).append(tmpCreditCard);
 
                     self.m_appLogin = new LoginView({
-                        el: Elements.APP_EVERNODES_CONTENT,
+                        el: Elements.APP_LOGIN_CONTENT,
                         duration: 500
                     });
 
-                    self.m_appCreditCard = new AppEntryFaderView({
+                    self.m_appCreditCard = new CreditCardView({
                         el: Elements.APP_CREDITCARD_CONTAINER,
                         duration: 500
                     });
 
                     if (window.location.search.match('pi')){
                         self.m_appEntryFaderView.selectView(self.m_appCreditCard);
+                        BB.CONSTS.PAYER_ID = window.location.search.split('=')[1];
+                        self._authenticateUser(BB.CONSTS.PAYER_ID);
                     } else {
                         self.m_appEntryFaderView.selectView(self.m_appLogin);
                     }
-
                     self._updateLayout();
+                });
+            },
+
+            /**
+             Get annual data from server
+             @method _getAnnualData
+             **/
+            _authenticateUser: function (i_token) {
+                var self = this;
+                var url = 'https://secure.digitalsignage.com:' + BB.CONSTS.SERVER_PORT + '/msAuthenticateToken';
+                $.ajax({
+                    url: url,
+                    type: "POST",
+                    crossDomain: true,
+                    data: JSON.stringify({
+                        token: i_token
+                    }),
+                    dataType: "json",
+                    contentType: "application/json",
+                    success: function (data) {
+                        if (data.status == 'fail'){
+                            bootbox.alert("Sorry we could not authenticate user...");
+                        } else {
+                            self.m_appCreditCard.populate(data);
+                        }
+                    },
+                    error: function (res) {
+                        bootbox.alert("something went wrong while loading user data " + res.statusText);
+                    }
                 });
             },
 

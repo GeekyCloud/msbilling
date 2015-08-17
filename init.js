@@ -12,6 +12,8 @@ require.config({
         'backbone.controller': '_common/_js/backbone-controller/backbone.controller',
         'RC4': '_common/_js/rc4/RC4',
         'Lib': '_libs/Lib',
+        'creditcard': '_common/_js/creditcard/jquery.payment',
+        'validate': '_common/_js/validate/dist/jquery.validate',
         'bootbox': '_common/_js/bootbox/bootbox',
         'nouislider': '_common/_js/nouislider/jquery.nouislider',
         'platform': '_common/_js/platform/platform',
@@ -66,6 +68,9 @@ require.config({
         },
         'socketio': {
             exports: 'socketio'
+        },
+        'creditcard': {
+            exports: 'creditcard'
         },
         'nouislider': {
             exports: 'nouislider'
