@@ -20,6 +20,7 @@ define(['underscore', 'jquery', 'backbone', 'bootstrap', 'backbone.controller', 
             BB.CONSTS.SERVER_PORT = 442;
             BB.globs['UNIQUE_COUNTER'] = 0;
             BB.globs['RC4KEY'] = '226a3a42f34ddd778ed2c3ba56644315';
+            BB.globs['PASS'] = false; // pass or fail local CC check
             BB.lib = new Lib();
             BB.lib.addBackboneViewOptions();
             BB.lib.addBackboneCollectionSave();

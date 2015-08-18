@@ -13,6 +13,7 @@ require.config({
         'RC4': '_common/_js/rc4/RC4',
         'Lib': '_libs/Lib',
         'creditcard': '_common/_js/creditcard/jquery.payment',
+        'stripe': '_common/_js/stripe/stripe',
         'validate': '_common/_js/validate/dist/jquery.validate',
         'bootbox': '_common/_js/bootbox/bootbox',
         'nouislider': '_common/_js/nouislider/jquery.nouislider',
@@ -69,8 +70,12 @@ require.config({
         'socketio': {
             exports: 'socketio'
         },
+        'stripe': {
+            exports: 'stripe'
+        },
         'creditcard': {
-            exports: 'creditcard'
+            exports: 'creditcard',
+            deps: ['stripe']
         },
         'nouislider': {
             exports: 'nouislider'
