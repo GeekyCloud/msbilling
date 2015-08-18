@@ -66,7 +66,7 @@ define(['jquery', 'backbone', 'StackView'], function ($, Backbone, StackView) {
                             case 'UNKNOWN':
                             {
                                 bootbox.dialog({
-                                    message: "You are currently not setup as a subscriber.",
+                                    message: "You are currently not setup as a subscriber or the user name/password provided are incorrect.",
                                     closeButton: false,
                                     buttons: {
                                         "success": {

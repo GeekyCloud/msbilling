@@ -17,7 +17,7 @@ define(['underscore', 'jquery', 'backbone', 'bootstrap', 'backbone.controller', 
             BB.LOADING = {};
             BB.CONSTS = {};
             BB.CONSTS.PAYER_ID = -1;
-            BB.CONSTS.SERVER_PORT = 442;
+            BB.CONSTS.SERVER_PORT = 443;
             BB.globs['UNIQUE_COUNTER'] = 0;
             BB.globs['RC4KEY'] = '226a3a42f34ddd778ed2c3ba56644315';
             BB.globs['PASS'] = false; // pass or fail local CC check

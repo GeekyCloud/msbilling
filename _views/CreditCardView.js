@@ -34,7 +34,7 @@ define(['jquery', 'backbone', 'StackView', 'creditcard', 'validate', 'stripe'], 
             /* Fancy restrictive input formatting via jQuery.payment library*/
             $('input[name=cardNumber]').payment('formatCardNumber');
             $('input[name=cardCVC]').payment('formatCardCVC');
-            $('input[name=cardExpiry').payment('formatCardExpiry');
+            $('input[name=cardExpiry]').payment('formatCardExpiry');
 
             /* Form validation using Stripe client-side validation helpers */
             jQuery.validator.addMethod("cardNumber", function (value, element) {
@@ -83,22 +83,28 @@ define(['jquery', 'backbone', 'StackView', 'creditcard', 'validate', 'stripe'], 
             });
 
             var paymentFormReady = function () {
-                if ($form.find('[name=cardNumber]').hasClass("success") &&
-                    $form.find('[name=cardExpiry]').hasClass("success") &&
-                    $form.find('[name=cardCVC]').val().length > 1) {
-                    return true;
-                } else {
+                if ($form.find('[name=cardNumber]').hasClass("error") == true ||
+                    $form.find('[name=cardExpiry]').hasClass("error") == true ||
+                    $form.find('[name=cardNumber]').val().length < 7 ||
+                    $form.find('[name=cardNumber]').val().indexOf('xx') > -1 ||
+                    $form.find('[name=cardExpiry]').val().length < 5 ||
+                    $form.find('[name=cardCVC]').val().length < 3
+                ) {
                     return false;
                 }
+                return true;
             };
 
-            $form.find('[type=submit]').prop('disabled', true);
+            //$form.find('[type=submit]').prop('disabled', true);
             var readyInterval = setInterval(function () {
                 if (paymentFormReady()) {
                     $form.find('[type=submit]').prop('disabled', false);
-                    clearInterval(readyInterval);
+                    //clearInterval(readyInterval);
+                } else {
+                    $form.find('[type=submit]').prop('disabled', true);
+                    //clearInterval(readyInterval);
                 }
-            }, 250);
+            }, 500);
         },
 
         /**
@@ -119,14 +125,16 @@ define(['jquery', 'backbone', 'StackView', 'creditcard', 'validate', 'stripe'], 
                     bootbox.alert('please enter a valid security code');
                     return false;
                 }
-                if (!BB.globs['PASS']){
+                if (!BB.globs['PASS']) {
                     bootbox.alert('please make sure credit card number is valid');
                     return false;
                 }
-                var cc = $('#cardNumber').val().replace(/ /ig,'');
+                var cc = $('#cardNumber').val().replace(/ /ig, '');
                 var exp = $('#cardExpiry').val();
                 var month = exp.split('/')[0].trim();
                 var year = exp.split('/')[1].trim();
+                if (year.length==2)
+                    year = '20'+year;
                 var cvc = $('#cardCVC').val();
                 self._saveServer(cc, month, year, cvc)
                 return false;
@@ -142,6 +150,7 @@ define(['jquery', 'backbone', 'StackView', 'creditcard', 'validate', 'stripe'], 
         _saveServer: function (cc, month, year, cvc) {
             var self = this;
             var url = 'https://secure.digitalsignage.com:' + BB.CONSTS.SERVER_PORT + '/msbilling' + '/' + BB.CONSTS.PAYER_ID + '/' + cc + '/' + month + '/' + year + '/' + cvc
+            bootbox.alert('please wait, updating....');
             $.ajax({
                 url: url,
                 type: "POST",
@@ -150,7 +159,8 @@ define(['jquery', 'backbone', 'StackView', 'creditcard', 'validate', 'stripe'], 
                 dataType: "json",
                 contentType: "application/json",
                 success: function (data) {
-                    if (data.status == 'fail'){
+                    bootbox.hideAll();
+                    if (data.status == 'fail') {
                         bootbox.dialog({
                             message: "Problem: The credit card could not be charged <br/>" + data.message,
                             closeButton: false,
@@ -158,7 +168,8 @@ define(['jquery', 'backbone', 'StackView', 'creditcard', 'validate', 'stripe'], 
                                 "success": {
                                     label: "Ok",
                                     className: "btn-danger",
-                                    callback: function () {}
+                                    callback: function () {
+                                    }
                                 }
                             }
                         });
@@ -167,6 +178,7 @@ define(['jquery', 'backbone', 'StackView', 'creditcard', 'validate', 'stripe'], 
                     }
                 },
                 error: function (res) {
+                    bootbox.hideAll();
                     bootbox.alert("something went wrong while loading user data " + res.statusText);
                 }
             });
